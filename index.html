@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@600&family=Space+Grotesk:wght@700&display=swap"
+    rel="stylesheet">
+
+  <style>
+    :root {
+      /* DAYTIME VARIABLES */
+      --bg-gradient: radial-gradient(circle at center top, #203a43, #2c5364, #0f2027 80%);
+      --water-foam: #f0f8ff;
+      --water-foam-glow: #fff8dc;
+      --water-surface: #577e92;
+      --water-shadow: #162a35;
+      --static-link: #a8d5f0;
+      --box-bg: rgba(10, 20, 30, 0.7);
+    }
+
+    body.night-mode {
+      /* NIGHTTIME VARIABLES */
+      --bg-gradient: radial-gradient(circle at center top, #1a1a1a, #0d0d0d, #000000 80%);
+      --water-foam: #ffffff;
+      --water-foam-glow: #ffffff;
+      --water-surface: #666666;
+      --water-shadow: #111111;
+      --static-link: #cccccc;
+      --box-bg: rgba(15, 15, 15, 0.8);
+    }
+
+    body,
+    html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--bg-gradient);
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      transition: background 2s ease;
+    }
+
+    #ocean {
+      margin: 0;
+      white-space: pre;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 14px;
+      line-height: 14px;
+      letter-spacing: 1px;
+      font-weight: bold;
+      color: #666;
+      pointer-events: none;
+    }
+
+    /* WATER COLOR PALETTE */
+    #ocean .f {
+      color: var(--water-foam);
+      text-shadow: 0 0 5px var(--water-foam-glow);
+    }
+
+    #ocean .s {
+      color: var(--water-surface);
+    }
+
+    #ocean .d {
+      color: var(--water-shadow);
+    }
+
+    /* --- NAME CONTAINER --- */
+    #name-container {
+      position: absolute;
+      background-color: var(--box-bg);
+      padding: 35px 70px;
+      border-radius: 15px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 10;
+      pointer-events: auto;
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      transition: background-color 2s ease;
+    }
+
+    /* --- TYPOGRAPHY: SPACE GROTESK --- */
+    #name-overlay {
+      color: #ffffff;
+      font-size: 52px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      letter-spacing: 8px;
+      margin: 0;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    /* --- STATIC LINKS ROW --- */
+    #box-links {
+      display: flex;
+      gap: 30px;
+      justify-content: center;
+    }
+
+    /* --- TYPOGRAPHY: IBM PLEX MONO --- */
+    #box-links a {
+      color: var(--static-link);
+      text-decoration: none;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      transition: all 0.3s ease;
+    }
+
+    #box-links a:hover {
+      color: #ffffff;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+    }
+
+    /* --- FLOATING LINKS STYLES --- */
+    .ocean-link-wrapper {
+      text-decoration: none;
+      display: inline-block;
+      position: relative;
+      cursor: pointer;
+      pointer-events: auto;
+    }
+
+    .ocean-link-wrapper::after {
+      content: '';
+      position: absolute;
+      top: -30px;
+      bottom: -30px;
+      left: -40px;
+      right: -40px;
+      z-index: 10;
+    }
+
+    @keyframes linkPulse {
+
+      0%,
+      100% {
+        filter: brightness(1) drop-shadow(0 0 2px rgba(255, 255, 255, 0.1));
+      }
+
+      50% {
+        filter: brightness(1.5) drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
+      }
+    }
+
+    @keyframes nightLinkPulse {
+
+      0%,
+      100% {
+        filter: brightness(1);
+      }
+
+      50% {
+        filter: brightness(1.2);
+      }
+    }
+
+    .ocean-link-letter {
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 600;
+      display: inline;
+      animation: linkPulse 2.5s infinite ease-in-out;
+      transition: color 0.2s, opacity 0.2s, text-shadow 0.2s;
+    }
+
+    body.night-mode .ocean-link-letter {
+      animation: nightLinkPulse 2.5s infinite ease-in-out;
+    }
+
+    /* =========================================
+     HOVER LOGIC 
+     ========================================= */
+
+    body:not(.night-mode) .ocean-link-wrapper:hover .ocean-link-letter {
+      color: #ffffff !important;
+      opacity: 1 !important;
+      text-shadow: 0 0 10px #ffffff, 0 0 20px rgba(255, 255, 255, 0.8) !important;
+      animation: none;
+    }
+
+    body.night-mode .ocean-link-wrapper:hover .ocean-link-letter.f {
+      color: #000000 !important;
+      text-shadow: 0 0 6px rgba(255, 255, 255, 1), 0 0 12px rgba(255, 255, 255, 0.8) !important;
+      animation: none;
+    }
+
+    body.night-mode .ocean-link-wrapper:hover .ocean-link-letter.s,
+    body.night-mode .ocean-link-wrapper:hover .ocean-link-letter.d {
+      color: #ffffff !important;
+      text-shadow: 0 0 10px #ffffff, 0 0 20px rgba(255, 255, 255, 0.8) !important;
+      animation: none;
+    }
+
+    body.night-mode #box-links a:hover {
+      color: #ffffff;
+      text-shadow: 0 0 10px #ffffff, 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.4);
+    }
+  </style>
+</head>
+
+<body>
+
+  <pre id="ocean"></pre>
+
+  <div id="name-container">
+    <div id="name-overlay">RADOUANE OUBAKHANE</div>
+    <div id="box-links">
+      <a href="#" target="_blank">[ GITHUB ]</a>
+      <a href="#" target="_blank">[ RESUME ]</a>
+      <a href="#" target="_blank">[ LINKEDIN ]</a>
+    </div>
+  </div>
+
+  <script>
+    // --- BASE ENGINE VARIABLES ---
+    let currentAmplitude = 1.0;
+    let currentSpeed = 0.006;
+    let currentChars = " ,._-:;+=*#%@";
+    let isMatrixMode = false;
+
+    let keyBuffer = "";
+
+    const charWidth = 8.8;
+    const charHeight = 14;
+
+    let width = 0;
+    let height = 0;
+    let time = 0;
+
+    // PHYSICS VARIABLES
+    let mouseX = -1000;
+    let mouseY = -1000;
+    let lastMouseX = null;
+    let lastMouseY = null;
+    let isMouseDown = false;
+
+    let currentHour = -1;
+
+    let ripple1 = [];
+    let ripple2 = [];
+
+    // WAKE PARTICLES ARRAY
+    let wakeParticles = [];
+
+    // --- SONAR SHOCKWAVE FUNCTION (Perfect Circle Fix) ---
+    function triggerShockwave() {
+      if (ripple1.length === 0) return;
+
+      // Target the exact center of the screen
+      let cx = Math.floor(width / 2);
+      let cy = Math.floor(height / 2);
+
+      let radiusY = 15; // Vertical radius
+      let aspect = charWidth / charHeight; // Calculate font stretching
+      let radiusX = Math.ceil(radiusY / aspect); // Expand X-axis check to match physical pixels
+
+      let force = 40.0; // Extreme force injection
+
+      for (let ix = -radiusX; ix <= radiusX; ix++) {
+        for (let iy = -radiusY; iy <= radiusY; iy++) {
+          let nx = cx + ix;
+          let ny = cy + iy;
+
+          if (nx >= 1 && nx < width - 1 && ny >= 1 && ny < height - 1) {
+
+            // Mathematically squash the X distance to account for skinny characters
+            let normalizedIx = ix * aspect;
+            let dist = Math.sqrt(normalizedIx * normalizedIx + iy * iy);
+
+            if (dist <= radiusY) {
+              let impact = force * (1 - (dist / (radiusY + 1)));
+              ripple1[nx][ny] -= impact;
+              ripple1[nx][ny] = Math.max(-40.0, ripple1[nx][ny]);
+            }
+          }
+        }
+      }
+    }
+
+    // --- KEYBOARD LISTENER (Easter Eggs & Spacebar) ---
+    window.addEventListener('keydown', (e) => {
+
+      // SPACEBAR SONAR SHOCKWAVE
+      if (e.code === 'Space') {
+        e.preventDefault(); // Prevents the browser from scrolling down
+        triggerShockwave();
+      }
+
+      if (e.key.length === 1) {
+        keyBuffer += e.key.toLowerCase();
+        if (keyBuffer.length > 20) keyBuffer = keyBuffer.slice(-20);
+
+        if (keyBuffer.includes('/storm')) {
+          currentAmplitude = 3.0;
+          currentSpeed = 0.015;
+          isMatrixMode = false;
+          currentChars = " ,._-:;+=*#%@";
+          keyBuffer = "";
+        }
+        else if (keyBuffer.includes('/calm')) {
+          currentAmplitude = 0.15;
+          currentSpeed = 0.001;
+          isMatrixMode = false;
+          currentChars = " ,._-:;+=*#%@";
+          keyBuffer = "";
+        }
+        else if (keyBuffer.includes('/matrix')) {
+          currentAmplitude = 1.0;
+          currentSpeed = 0.008;
+          isMatrixMode = true;
+          currentChars = "01";
+          keyBuffer = "";
+        }
+        else if (keyBuffer.includes('/normal')) {
+          currentAmplitude = 1.0;
+          currentSpeed = 0.006;
+          isMatrixMode = false;
+          currentChars = " ,._-:;+=*#%@";
+          keyBuffer = "";
+        }
+      }
+    });
+
+    window.addEventListener('mousedown', () => isMouseDown = true);
+    window.addEventListener('mouseup', () => isMouseDown = false);
+
+    window.addEventListener('mousemove', (e) => {
+      let currX = e.clientX;
+      let currY = e.clientY;
+      mouseX = currX;
+      mouseY = currY;
+
+      if (lastMouseX !== null && lastMouseY !== null && ripple1.length > 0) {
+        let dx = currX - lastMouseX;
+        let dy = currY - lastMouseY;
+
+        let dist = Math.sqrt(dx * dx + dy * dy);
+        let speed = Math.min(dist, 40);
+
+        if (speed > 3 || isMouseDown) {
+          let force = (speed / 20.0);
+
+          if (isMouseDown) force *= 3.0;
+          else force *= 0.15;
+
+          let steps = Math.max(1, Math.floor(dist / 4));
+
+          for (let i = 0; i <= steps; i++) {
+            let px = lastMouseX + dx * (i / steps);
+            let py = lastMouseY + dy * (i / steps);
+            let gx = Math.floor(px / charWidth);
+            let gy = Math.floor(py / charHeight);
+
+            let radius = isMouseDown ? 2 : 1;
+
+            for (let ix = -radius; ix <= radius; ix++) {
+              for (let iy = -radius; iy <= radius; iy++) {
+                let nx = gx + ix;
+                let ny = gy + iy;
+
+                if (nx >= 1 && nx < width - 1 && ny >= 1 && ny < height - 1) {
+                  let cellDist = Math.sqrt(ix * ix + iy * iy);
+
+                  if (cellDist <= radius) {
+                    let impact = force * (1 - (cellDist / (radius + 1)));
+                    ripple1[nx][ny] -= impact;
+                    ripple1[nx][ny] = Math.max(-5.0, ripple1[nx][ny]);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      lastMouseX = currX;
+      lastMouseY = currY;
+    });
+
+    window.addEventListener('mouseout', () => {
+      mouseX = -1000;
+      mouseY = -1000;
+      lastMouseX = null;
+      lastMouseY = null;
+      isMouseDown = false;
+    });
+
+    let floatingLinks = [];
+
+    function initLinks() {
+      floatingLinks = [
+        { text: "[ GITHUB ]", url: "#", x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight, vx: 0, vy: 0, roll: 0, pitch: 0 },
+        { text: "[ RESUME ]", url: "#", x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight, vx: 0, vy: 0, roll: 0, pitch: 0 },
+        { text: "[ LINKEDIN ]", url: "#", x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight, vx: 0, vy: 0, roll: 0, pitch: 0 }
+      ];
+    }
+
+    function resize() {
+      width = Math.floor(window.innerWidth / charWidth);
+      height = Math.floor(window.innerHeight / charHeight);
+
+      ripple1 = Array.from({ length: width }, () => new Float32Array(height));
+      ripple2 = Array.from({ length: width }, () => new Float32Array(height));
+
+      if (floatingLinks.length === 0) initLinks();
+    }
+
+    function noise2D(x, y, t) {
+      let value = 0;
+      let amplitude = currentAmplitude;
+      let frequency = 0.05;
+      let lacunarity = 1.8;
+      let gain = 0.5;
+
+      for (let i = 0; i < 4; i++) {
+        value += Math.sin(x * frequency + t) * Math.cos(y * frequency + t * 0.7) * amplitude;
+        value += Math.sin((x - y) * frequency * 0.8 - t * 1.3) * amplitude;
+
+        let nx = x * 0.8 - y * 0.6;
+        let ny = x * 0.6 + y * 0.8;
+        x = nx; y = ny;
+
+        frequency *= lacunarity;
+        amplitude *= gain;
+      }
+      return value;
+    }
+
+    function getRippleH(gx, gy) {
+      let x = Math.floor(gx);
+      let y = Math.floor(gy);
+      if (x >= 0 && x < width && y >= 0 && y < height && ripple1[x]) {
+        return ripple1[x][y];
+      }
+      return 0;
+    }
+
+    function renderWave() {
+      let frameArr = [];
+
+      let now = new Date();
+      let h = now.getHours();
+
+      if (h !== currentHour) {
+        currentHour = h;
+        if (h >= 18 || h < 6) {
+          document.body.classList.add('night-mode');
+        } else {
+          document.body.classList.remove('night-mode');
+        }
+      }
+      let isNight = document.body.classList.contains('night-mode');
+      let secondsToday = h * 3600 + now.getMinutes() * 60 + now.getSeconds() + now.getMilliseconds() / 1000;
+      let dayFraction = secondsToday / 86400;
+
+      let skyCenterX = width / 2;
+      let skyCenterY = height;
+      let skyRadius = Math.max(width, height) * 0.8;
+      let sunAngle = (dayFraction * Math.PI * 2) + (Math.PI / 2);
+      let lightX = skyCenterX + Math.cos(sunAngle) * skyRadius;
+      let lightY = skyCenterY + Math.sin(sunAngle) * skyRadius;
+
+      // PROCESS 2D RIPPLE PHYSICS
+      if (ripple1.length > 0 && ripple2.length > 0) {
+        for (let i = 1; i < width - 1; i++) {
+          for (let j = 1; j < height - 1; j++) {
+            ripple2[i][j] = (ripple1[i - 1][j] + ripple1[i + 1][j] + ripple1[i][j - 1] + ripple1[i][j + 1]) / 2 - ripple2[i][j];
+            ripple2[i][j] *= 0.95;
+          }
+        }
+        let temp = ripple1;
+        ripple1 = ripple2;
+        ripple2 = temp;
+      }
+
+      let activeGridPositions = {};
+      let maskedPositions = {};
+
+      // UPDATE FLOATING LINKS
+      floatingLinks.forEach(boat => {
+        let gridX = boat.x / charWidth;
+        let gridY = boat.y / charHeight;
+
+        let centerH = noise2D(gridX, gridY, time) + getRippleH(gridX, gridY);
+        let rightH = noise2D(gridX + 1.5, gridY, time) + getRippleH(gridX + 1.5, gridY);
+        let bottomH = noise2D(gridX, gridY + 1.5, time) + getRippleH(gridX, gridY + 1.5);
+
+        let slopeX = rightH - centerH;
+        let slopeY = bottomH - centerH;
+
+        let textPixelWidth = boat.text.length * charWidth;
+
+        let isHovered = (
+          mouseX >= boat.x - 40 &&
+          mouseX <= boat.x + textPixelWidth + 40 &&
+          mouseY >= boat.y - 30 &&
+          mouseY <= boat.y + charHeight + 30
+        );
+
+        // --- PURE GRAVITY PHYSICS ---
+        if (!isHovered) {
+          boat.vx += (-slopeX * 1.6);
+          boat.vy += (-slopeY * 1.6);
+        } else {
+          boat.vx *= 0.5;
+          boat.vy *= 0.5;
+        }
+
+        boat.vx *= 0.93;
+        boat.vy *= 0.93;
+        boat.x += boat.vx;
+        boat.y += boat.vy;
+
+        // --- DYNAMIC PITCH & ROLL MATH ---
+        let targetRoll = Math.max(-35, Math.min(35, -slopeX * 60));
+        let targetPitch = Math.max(-35, Math.min(35, slopeY * 60));
+
+        boat.roll = boat.roll || 0;
+        boat.pitch = boat.pitch || 0;
+        boat.roll += (targetRoll - boat.roll) * 0.15;
+        boat.pitch += (targetPitch - boat.pitch) * 0.15;
+
+        let boatSpeed = Math.sqrt(boat.vx * boat.vx + boat.vy * boat.vy);
+
+        // --- KINETIC BOAT WAKES LOGIC ---
+        if (boatSpeed > 0.6) {
+          let numParticles = Math.floor(boatSpeed * 1.5);
+          for (let p = 0; p < numParticles; p++) {
+            let dropX = boat.x + Math.random() * textPixelWidth;
+            let dropY = boat.y + Math.random() * charHeight;
+
+            dropX -= boat.vx * (1 + Math.random() * 4);
+            dropY -= boat.vy * (1 + Math.random() * 4);
+
+            wakeParticles.push({
+              gx: Math.floor(dropX / charWidth),
+              gy: Math.floor(dropY / charHeight),
+              age: 0,
+              life: 30 + Math.random() * 40
+            });
+          }
+        }
+
+        // --- TRUE TWO-WAY PHYSICS LOGIC ---
+        if (boatSpeed > 0.2) {
+          let currentGx = Math.floor(boat.x / charWidth);
+          let currentGy = Math.floor(boat.y / charHeight);
+
+          let boatMass = 0.8;
+          let impact = boatMass * (boatSpeed / 5.0);
+
+          for (let ix = 0; ix < boat.text.length; ix++) {
+            let nx = currentGx + ix;
+            let ny = currentGy;
+
+            if (nx >= 1 && nx < width - 1 && ny >= 1 && ny < height - 1) {
+              ripple1[nx][ny] -= (impact / boat.text.length);
+              ripple1[nx][ny] = Math.max(-2.0, ripple1[nx][ny]);
+            }
+          }
+        }
+
+        if (boat.x < -textPixelWidth) boat.x = window.innerWidth;
+        else if (boat.x > window.innerWidth) boat.x = -textPixelWidth;
+
+        if (boat.y < -charHeight) boat.y = window.innerHeight;
+        else if (boat.y > window.innerHeight) boat.y = -charHeight;
+
+        let gx = Math.floor(boat.x / charWidth);
+        let gy = Math.floor(boat.y / charHeight);
+
+        if (gy >= 0 && gy < height && gx >= 0 && gx < width - boat.text.length) {
+          if (!activeGridPositions[gy]) activeGridPositions[gy] = {};
+          activeGridPositions[gy][gx] = boat;
+
+          if (!maskedPositions[gy]) maskedPositions[gy] = {};
+          maskedPositions[gy][gx - 1] = true;
+          maskedPositions[gy][gx + boat.text.length] = true;
+        }
+      });
+
+      // --- PREPARE WAKE GRID FOR RENDERING ---
+      let wakeGrid = {};
+      for (let i = wakeParticles.length - 1; i >= 0; i--) {
+        let p = wakeParticles[i];
+        p.age++;
+        if (p.age > p.life) {
+          wakeParticles.splice(i, 1);
+        } else {
+          if (p.gy >= 0 && p.gy < height && p.gx >= 0 && p.gx < width) {
+            if (!wakeGrid[p.gy]) wakeGrid[p.gy] = {};
+            let intensity = 1.0 - (p.age / p.life);
+            wakeGrid[p.gy][p.gx] = Math.max(wakeGrid[p.gy][p.gx] || 0, intensity);
+          }
+        }
+      }
+
+      for (let y = 0; y < height; y++) {
+        let row = "";
+        for (let x = 0; x < width; x++) {
+
+          let boatHere = null;
+          if (activeGridPositions[y] && activeGridPositions[y][x]) {
+            boatHere = activeGridPositions[y][x];
+          }
+
+          if (boatHere) {
+            // INJECTING THE CSS 3D TRANSFORM
+            let transformStyle = `transform: perspective(300px) rotateX(${boatHere.pitch}deg) rotateZ(${boatHere.roll}deg); transform-origin: center;`;
+
+            row += `<a href="${boatHere.url}" class="ocean-link-wrapper" target="_blank" 
+                     style="${transformStyle}"
+                     onmouseenter="floatingLinks.find(l => l.text === '${boatHere.text}').isHovered = true" 
+                     onmouseleave="floatingLinks.find(l => l.text === '${boatHere.text}').isHovered = false">`;
+
+            for (let i = 0; i < boatHere.text.length; i++) {
+              let bx = x + i;
+
+              let heightValue = noise2D(bx, y, time) + getRippleH(bx, y);
+              let horizonDepth = (y / height) * 1.5 - 0.75;
+              heightValue += horizonDepth;
+
+              let normalizedH = (heightValue + 4) / 8;
+              normalizedH = Math.max(0, Math.min(1, normalizedH));
+
+              let normalX = (noise2D(bx + 1, y, time) + getRippleH(bx + 1, y)) - (heightValue - horizonDepth);
+              let normalY = (noise2D(bx, y + 1, time) + getRippleH(bx, y + 1)) - (heightValue - horizonDepth);
+
+              let dx = lightX - bx;
+              let dy = lightY - y;
+              let dist = Math.sqrt(dx * dx + dy * dy);
+
+              let reflect = ((normalX * (dx / dist)) + (normalY * (dy / dist))) + horizonDepth;
+              reflect = Math.max(0, reflect * 0.8);
+
+              let colorClass = 's';
+              if (normalizedH > 0.85) colorClass = 'f';
+              else if (reflect > 0.3) colorClass = 'f';
+              else if (normalizedH < 0.25) colorClass = 'd';
+
+              let inlineStyle = "";
+              let physicsLight = normalizedH;
+              if (reflect > 0) physicsLight += reflect * 0.8;
+              physicsLight = Math.max(0, Math.min(1, physicsLight));
+              let textBrightness = 1 - physicsLight;
+
+              if (isNight) {
+                let rgbText = Math.floor(textBrightness * 255);
+                let rgbGlow = Math.floor(physicsLight * 200);
+                inlineStyle = `style="color: rgb(${rgbText}, ${rgbText}, ${rgbText}); text-shadow: 0 0 2px rgba(${rgbGlow}, ${rgbGlow}, ${rgbGlow}, 0.9), 0 0 6px rgba(${rgbGlow}, ${rgbGlow}, ${rgbGlow}, 0.4); opacity: 1;"`;
+              } else {
+                let r = Math.floor(22 + (textBrightness * 233));
+                let g = Math.floor(42 + (textBrightness * 213));
+                let b = Math.floor(53 + (textBrightness * 202));
+                let glowAlpha = physicsLight * 0.9;
+                inlineStyle = `style="color: rgb(${r}, ${g}, ${b}); text-shadow: 0 0 3px rgba(255, 255, 255, ${glowAlpha}), 0 0 10px rgba(255, 255, 255, ${glowAlpha * 0.6}); opacity: 1;"`;
+              }
+
+              row += `<span class="ocean-link-letter ${colorClass}" ${inlineStyle}>${boatHere.text[i]}</span>`;
+            }
+            row += `</a>`;
+            x += boatHere.text.length - 1;
+            continue;
+          }
+
+          if (maskedPositions[y] && maskedPositions[y][x]) {
+            row += `<span class="s"> </span>`;
+            continue;
+          }
+
+          let heightValue = noise2D(x, y, time) + getRippleH(x, y);
+          let horizonDepth = (y / height) * 1.5 - 0.75;
+          heightValue += horizonDepth;
+
+          let normalizedH = (heightValue + 4) / 8;
+          normalizedH = Math.max(0, Math.min(1, normalizedH));
+
+          let normalX = (noise2D(x + 1, y, time) + getRippleH(x + 1, y)) - (heightValue - horizonDepth);
+          let normalY = (noise2D(x, y + 1, time) + getRippleH(x, y + 1)) - (heightValue - horizonDepth);
+
+          // --- INJECT WAKE PHYSICS ---
+          let wakeIntensity = 0;
+          if (wakeGrid[y] && wakeGrid[y][x]) {
+            wakeIntensity = wakeGrid[y][x];
+            normalizedH = Math.max(normalizedH, wakeIntensity * 0.9);
+          }
+
+          let dx = lightX - x;
+          let dy = lightY - y;
+          let dist = Math.sqrt(dx * dx + dy * dy);
+
+          let reflect = ((normalX * (dx / dist)) + (normalY * (dy / dist))) + horizonDepth;
+
+          if (wakeIntensity > 0) reflect += wakeIntensity * 0.5;
+
+          reflect = Math.max(0, reflect * 0.8);
+
+          let index = Math.floor(normalizedH * currentChars.length);
+          index = Math.max(0, Math.min(currentChars.length - 1, index));
+          let char = currentChars[index];
+
+          let colorClass = 's';
+          if (normalizedH > 0.85) {
+            char = isMatrixMode ? (Math.random() > 0.5 ? '1' : '0') : '@';
+            colorClass = 'f';
+          } else if (reflect > 0.3) {
+            colorClass = 'f';
+            if (!isMatrixMode && char === " ") char = ".";
+          } else if (normalizedH < 0.25) {
+            colorClass = 'd';
+          }
+
+          row += `<span class="${colorClass}">${char}</span>`;
+        }
+        frameArr.push(row);
+      }
+
+      document.getElementById("ocean").innerHTML = frameArr.join("\n");
+
+      time += currentSpeed;
+      requestAnimationFrame(renderWave);
+    }
+
+    window.addEventListener('resize', resize);
+    resize();
+    renderWave();
+  </script>
+
+</body>
+
+</html>
